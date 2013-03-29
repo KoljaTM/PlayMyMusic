@@ -11,7 +11,6 @@ import org.teleal.cling.model.meta.RemoteDevice;
 import org.teleal.cling.model.meta.Service;
 import org.teleal.cling.registry.DefaultRegistryListener;
 import org.teleal.cling.registry.Registry;
-import org.teleal.cling.transport.Router;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -174,11 +173,11 @@ public class MainActivity extends ListActivity {
 
 	private ArrayAdapter<DeviceDisplay> listAdapter;
 
-	private BrowseRegistryListener registryListener = new BrowseRegistryListener();
+	private final BrowseRegistryListener registryListener = new BrowseRegistryListener();
 
 	private AndroidUpnpService upnpService;
 
-	private ServiceConnection serviceConnection = new ServiceConnection() {
+	private final ServiceConnection serviceConnection = new ServiceConnection() {
 
 		@Override
 		public void onServiceConnected(final ComponentName className,
@@ -231,7 +230,7 @@ public class MainActivity extends ListActivity {
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		menu.add(0, 0, 0, R.string.searchLAN).setIcon(
 				android.R.drawable.ic_menu_search);
-		menu.add(0, 1, 0, R.string.switchRouter).setIcon(
+		menu.add(0, 1, 0, R.string.testActivity).setIcon(
 				android.R.drawable.ic_menu_revert);
 		menu.add(0, 2, 0, R.string.toggleDebugLogging).setIcon(
 				android.R.drawable.ic_menu_info_details);
@@ -283,26 +282,8 @@ public class MainActivity extends ListActivity {
 			upnpService.getControlPoint().search();
 			break;
 		case 1:
-			if (upnpService != null) {
-				final Router router = upnpService.get().getRouter();
-				// try {
-				// if (router.isEnabled()) {
-				// Toast.makeText(this, R.string.disablingRouter,
-				// Toast.LENGTH_SHORT).show();
-				// router.disable();
-				// } else {
-				// Toast.makeText(this, R.string.enablingRouter,
-				// Toast.LENGTH_SHORT).show();
-				// router.enable();
-				// }
-				// } catch (final RouterException ex) {
-				// Toast.makeText(
-				// this,
-				// getText(R.string.errorSwitchingRouter)
-				// + ex.toString(), Toast.LENGTH_LONG).show();
-				// ex.printStackTrace(System.err);
-				// }
-			}
+			Toast.makeText(this, R.string.testActivity, Toast.LENGTH_LONG)
+					.show();
 			break;
 		case 2:
 			final Logger logger = Logger.getLogger("org.fourthline.cling");
