@@ -5,7 +5,7 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.jayway.android.robotium.solo.Solo;
 
-import de.vanmar.android.knitdroid.MainActivity;
+import de.vanmar.android.playmymusic.MainActivity;
 
 public class MainActivityTest extends
 		ActivityInstrumentationTestCase2<MainActivity> {
@@ -26,7 +26,7 @@ public class MainActivityTest extends
 		solo.finishOpenedActivities();
 	}
 
-	public void testHelloWorld() throws Exception {
-		Assert.assertTrue(solo.searchText("Hello World"));
+	public void testAppName() throws Exception {
+		Assert.assertTrue(solo.searchText("Play my Music"));
 	}
 }

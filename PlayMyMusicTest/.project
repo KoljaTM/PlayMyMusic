@@ -3,7 +3,7 @@
 	<name>PlayMyMusicTest</name>
 	<comment></comment>
 	<projects>
-		<project>Knitdroid</project>
+		<project>PlayMyMusic</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
