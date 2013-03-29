@@ -11,18 +11,18 @@ import de.vanmar.android.playmymusic.beans.LibraryItem;
 
 public class LibraryListAdapter extends ArrayAdapter<LibraryItem> {
 
-	public interface LibraryFragmentListener {
+	public interface LibraryAdapterListener {
 		void onItemSelected(LibraryItem item);
 	}
 
-	private final LibraryFragmentListener handler;
+	private final LibraryAdapterListener handler;
 
 	private static class ViewHolder {
 		public TextView title;
 	}
 
 	protected LibraryListAdapter(final Activity context,
-			final LibraryFragmentListener handler) {
+			final LibraryAdapterListener handler) {
 		super(context, R.layout.libraryitem, R.id.title);
 		this.handler = handler;
 	}

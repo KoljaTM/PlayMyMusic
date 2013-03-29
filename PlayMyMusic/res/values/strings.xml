@@ -19,4 +19,5 @@
     <string name="deviceDetailsNotYetAvailable">Device details are being discovered, please wait.</string>
 
     <string name="testActivity">Open test activity</string>
+    <string name="selectRenderer">- No output selected -</string>
 </resources>

@@ -15,11 +15,14 @@ import org.teleal.cling.model.meta.Service;
 import org.teleal.cling.model.types.ServiceType;
 import org.teleal.cling.registry.DefaultRegistryListener;
 import org.teleal.cling.registry.Registry;
+import org.teleal.cling.support.avtransport.callback.Play;
+import org.teleal.cling.support.avtransport.callback.SetAVTransportURI;
 import org.teleal.cling.support.contentdirectory.callback.Browse;
 import org.teleal.cling.support.model.BrowseFlag;
 import org.teleal.cling.support.model.DIDLContent;
 import org.teleal.cling.support.model.container.Container;
 import org.teleal.cling.support.model.item.Item;
+import org.teleal.cling.support.model.item.MusicTrack;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,17 +39,20 @@ import com.googlecode.androidannotations.annotations.EFragment;
 import com.googlecode.androidannotations.annotations.UiThread;
 import com.googlecode.androidannotations.annotations.ViewById;
 
+import de.vanmar.android.playmymusic.PlayMyMusicActivity;
 import de.vanmar.android.playmymusic.beans.LibraryItem;
 import de.vanmar.android.playmymusic.beans.LibraryItem.ItemType;
-import de.vanmar.android.playmymusic.fragment.LibraryListAdapter.LibraryFragmentListener;
+import de.vanmar.android.playmymusic.fragment.LibraryListAdapter.LibraryAdapterListener;
 import de.vanmar.android.playmymusic.util.UiHelper;
 
 @EFragment(resName = "libraryfragment")
-public class LibraryFragment extends Fragment implements
-		LibraryFragmentListener {
+public class LibraryFragment extends Fragment implements LibraryAdapterListener {
 
 	private static final ServiceType SERVICE_TYPE_CONTENT_DIRECTORY = new ServiceType(
 			"schemas-upnp-org", "ContentDirectory", 1);
+
+	private static final ServiceType SERVICE_TYPE_AV_TRANSPORT = new ServiceType(
+			"schemas-upnp-org", "AVTransport", 1);
 
 	private Device currentContentDirectory = null;
 	private final Stack<String> browseHierarchy = new Stack<String>();
@@ -128,6 +134,7 @@ public class LibraryFragment extends Fragment implements
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		adapter = new LibraryListAdapter(getActivity(), this);
 
 		// This will start the UPnP service if it wasn't already started
 		getActivity().bindService(
@@ -144,7 +151,6 @@ public class LibraryFragment extends Fragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
-
 	}
 
 	@Override
@@ -154,7 +160,7 @@ public class LibraryFragment extends Fragment implements
 
 	@UiThread
 	public void deviceAdded(final Device device) {
-		if (!isMediaServer(device)) {
+		if (!isMediaServer(device) || !browseHierarchy.isEmpty()) {
 			return;
 		}
 
@@ -196,8 +202,45 @@ public class LibraryFragment extends Fragment implements
 			parent = "0";
 		} else if (item.getType() == ItemType.CONTAINER) {
 			parent = item.getContainer().getId();
+		} else if (item.getType() == ItemType.ITEM
+				&& item.getItem() instanceof MusicTrack) {
+			final MusicTrack track = (MusicTrack) item.getItem();
+			final Device renderer = ((PlayMyMusicActivity) getActivity())
+					.getRenderer();
+			final Service rendererService = renderer
+					.findService(SERVICE_TYPE_AV_TRANSPORT);
+			upnpService.getControlPoint().execute(
+					new SetAVTransportURI(rendererService, track
+							.getFirstResource().getValue()) {
+
+						@Override
+						public void failure(
+								final ActionInvocation paramActionInvocation,
+								final UpnpResponse paramUpnpResponse,
+								final String message) {
+							uiHelper.displayError(message);
+						}
+
+						@Override
+						public void success(final ActionInvocation invocation) {
+							super.success(invocation);
+							upnpService.getControlPoint().execute(
+									new Play(rendererService) {
+
+										@Override
+										public void failure(
+												final ActionInvocation paramActionInvocation,
+												final UpnpResponse paramUpnpResponse,
+												final String paramString) {
+											// TODO Auto-generated method stub
+
+										}
+									});
+						}
+					});
+			return;
 		} else {
-			uiHelper.displayError("Play not yet implemented");
+			uiHelper.displayError("No action implemented");
 			return;
 		}
 
